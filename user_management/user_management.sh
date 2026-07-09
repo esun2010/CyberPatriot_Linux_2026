@@ -22,7 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 AUTH_USERS_FILE="$SCRIPT_DIR/auth_users.txt"
 AUTH_ADMINS_FILE="$SCRIPT_DIR/auth_admins.txt"
-
+nano "$AUTH_USERS_FILE" "$AUTH_ADMINS_FILE"
 UNAUTH_USERS_FILE="$SCRIPT_DIR/unauth_users.txt"
 UNAUTH_ADMINS_FILE="$SCRIPT_DIR/unauth_admins.txt"
 
