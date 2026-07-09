@@ -6,20 +6,18 @@ set -euo pipefail
 # ============================================================
 # Admin Password Reset Script
 #
-# Reads admin usernames from auth_admins.txt and sets each
+# Reads admin usernames from ../user_management/auth_admins.txt and sets each
 # listed account to the same password.
 #
 # Run with sudo/root.
 # ============================================================
 
-AUTH_ADMINS_FILE="auth_admins.txt"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AUTH_ADMINS_FILE="$SCRIPT_DIR/../user_management/auth_admins.txt"
 
 # Change this password to whatever you want:
 NEW_PASSWORD="ChangeMe123!"
 
-# -----------------------------
-# Safety checks
-# -----------------------------
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root (use sudo)." >&2
   exit 1
@@ -35,21 +33,15 @@ if [[ -z "$NEW_PASSWORD" ]]; then
   exit 1
 fi
 
-# -----------------------------
-# Reset passwords
-# -----------------------------
 echo "Resetting passwords for admins listed in $AUTH_ADMINS_FILE ..."
 echo
 
 while IFS= read -r line || [[ -n "$line" ]]; do
-  # Trim whitespace
   username="$(echo "$line" | xargs)"
 
-  # Skip blank lines and comments
   [[ -z "$username" ]] && continue
   [[ "$username" =~ ^# ]] && continue
 
-  # Make sure the user exists
   if id "$username" >/dev/null 2>&1; then
     echo "$username:$NEW_PASSWORD" | chpasswd
     echo "Password updated for: $username"
@@ -60,4 +52,3 @@ done < "$AUTH_ADMINS_FILE"
 
 echo
 echo "Done."
-
