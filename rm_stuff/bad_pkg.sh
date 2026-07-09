@@ -1,7 +1,13 @@
+#!/usr/bin/env bash
 # CyberPatriot Safe Removal Script
 # Lets you manually edit a list of dangerous packages before removing them
 
 set -euo pipefail
+
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root."
+    exit 1
+fi
 
 # List of packages that are usually unsafe
 BAD_PACKAGES=(
@@ -43,25 +49,26 @@ echo "👉 Edit the list as needed BEFORE removal."
 echo "👉 If any package is needed per the README, remove it from the list."
 echo
 
-read -p "Do you want to edit the list now? (y/n) " edit_choice
+read -r -p "Do you want to edit the list now? (y/n) " edit_choice
+
+TEMP_LIST=""
+cleanup() {
+    [[ -n "$TEMP_LIST" && -f "$TEMP_LIST" ]] && rm -f "$TEMP_LIST"
+}
+trap cleanup EXIT
 
 if [[ "$edit_choice" =~ ^[Yy]$ ]]; then
-    # Create a temp file
     TEMP_LIST=$(mktemp)
-
-    # Write current list to file
     printf "%s\n" "${BAD_PACKAGES[@]}" > "$TEMP_LIST"
 
     echo
     echo "Opening list in nano..."
     echo "Remove any packages you DO NOT want uninstalled."
     echo "Save with CTRL+O, exit with CTRL+X."
-    sleep 2
+    sleep 1
     nano "$TEMP_LIST"
 
-    # Load edited list back into array
     mapfile -t BAD_PACKAGES < "$TEMP_LIST"
-
     echo
     echo "Edited list loaded."
 fi
@@ -69,18 +76,18 @@ fi
 echo "==============================================="
 echo " Final package removal list:"
 echo "==============================================="
-
 for pkg in "${BAD_PACKAGES[@]}"; do
     echo " - $pkg"
 done
 
 echo
-read -p "Proceed with removal? (y/n) " choice
+read -r -p "Proceed with removal? (y/n) " choice
 echo
 
 if [[ "$choice" =~ ^[Yy]$ ]]; then
     echo "[+] Removing packages..."
     for pkg in "${BAD_PACKAGES[@]}"; do
+        [[ -z "$pkg" ]] && continue
         if dpkg -l | grep -q "^ii  $pkg "; then
             echo "Removing: $pkg"
             apt purge -y "$pkg"
