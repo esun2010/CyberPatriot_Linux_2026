@@ -1,50 +1,48 @@
 #!/bin/bash
 #check
 
+set -euo pipefail
+
 # This script installs, configures, and enables UFW (Uncomplicated Firewall) on Linux.
 
-# Update package list and upgrade packages
+if [[ "$(id -u)" -ne 0 ]]; then
+    echo "This script must be run as root."
+    exit 1
+fi
+
 echo "Updating package list..."
-sudo apt update -y && sudo apt upgrade -y
+apt update -y
 
-# Install UFW if it's not already installed
 echo "Installing UFW..."
-sudo apt install ufw -y
+apt install -y ufw
 
-# Check if UFW is installed successfully
-if ! command -v ufw &> /dev/null
-then
+if ! command -v ufw &> /dev/null; then
     echo "UFW installation failed. Exiting script."
     exit 1
 fi
 
-# Enable UFW to start on boot
 echo "Enabling UFW to start on boot..."
-sudo systemctl enable ufw
+systemctl enable ufw
 
-# Basic firewall rules configuration
 echo "Configuring UFW rules..."
 
-# Allow SSH (important to avoid locking yourself out of the system)
+# Allow SSH first to avoid lockouts.
 echo "Allowing SSH connections..."
-sudo ufw allow ssh
+ufw allow ssh
 
-# Allow HTTP and HTTPS (if needed for web servers) can delete if not
+# Allow HTTP and HTTPS only if needed for a web server.
 echo "Allowing HTTP and HTTPS traffic..."
-sudo ufw allow http
-sudo ufw allow https
+ufw allow http
+ufw allow https
 
-# Set default policies (deny incoming, allow outgoing)
 echo "Setting default policies..."
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
+ufw default deny incoming
+ufw default allow outgoing
 
-# Enable UFW
 echo "Enabling UFW..."
-sudo ufw enable
+ufw --force enable
 
-# Check the UFW status
 echo "UFW status:"
-sudo ufw status verbose
+ufw status verbose
 
 echo "UFW has been installed, configured, and enabled successfully."
