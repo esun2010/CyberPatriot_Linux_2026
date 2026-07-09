@@ -14,10 +14,10 @@ SCRIPTS=(
   "misc/kernel.sh"
   "misc/login.sh"
   "password_management/pwd_policy.sh"
+  "user_management/user_management.sh"
   "password_management/reset_admin_pwd.sh"
   "rm_stuff/rm_mp3+.sh"
   "services/ufw.sh"
-  "user_management/user_management.sh"
   "rm_stuff/bad_pkg.sh"
   "rm_stuff/pwd_cracking_search.sh"
 )
