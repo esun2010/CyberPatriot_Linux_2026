@@ -45,9 +45,9 @@ declare -A SCRIPT_MAP=(
 # ------------------------------------------------------------
 declare -A DESCRIPTION=(
     [ker]="Kernel settings"
-    [log]="Login settings"
+    [log]="Login settings+guest account+login as root ssh"
     [pol]="Password policy"
-    [usr]="User management"
+    [usr]="User/admin management"
     [adm]="Reset admin password"
     [mp3]="Remove MP3 files"
     [ufw]="Configure UFW"
